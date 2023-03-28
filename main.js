@@ -1,8 +1,10 @@
-const {app, BrowserWindow, ipcMain,session} = require('electron')
+const {app, BrowserWindow, ipcMain, session} = require('electron')
 const path = require('path')
 
 let filePath = path.resolve(path.join(__dirname, './lib/preload.js'))
+
 let newMianWindow;
+
 const createMainWindow = (url) => {
 
     const win = new BrowserWindow({
@@ -21,17 +23,40 @@ const createMainWindow = (url) => {
         win.show()
     })
 
+
     const filter = {
-        urls: ['https://zb.lnwsjktj.com:8080/*']
+        urls: ['https://zb.lnwsjktj.com:8080/webPage//ei/client/adddata.do', 'https://zb.lnwsjktj.com:8080/webPage/ei/client/adddata.do']
     }
 
     session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
-        console.log(details)
-        callback({ requestHeaders: details.requestHeaders })
+        const bytes = details.uploadData && details.uploadData[0].bytes
+        const requestData = String.fromCharCode.apply(String, bytes)
+        // console.log(details.uploadData.bytes)
+        session.defaultSession.webRequest.onCompleted(filter, (details) => {
+            if (details.statusCode === 200) {
+                if (requestData) {
+                    const data = {};
+                    requestData.split('&').forEach(item => {
+                        const dataItem = item.split('=')
+                        data[dataItem[0]] = dataItem[1]
+                    })
+                    if (data.cmd === 'query') {
+                        console.log(data)
+                        win.webContents.send('requestData', data)
+                    }
+
+                }
+            }
+        })
+
+        callback({requestHeaders: details.requestHeaders})
     })
 
 
     win.webContents.setWindowOpenHandler((details) => {
+        if (newMianWindow){
+            newMianWindow.close()
+        }
         newMianWindow = createMainWindow(details.url)
         // ipcMain.removeHandler('getData')
         return {action: 'deny'}
@@ -44,7 +69,7 @@ const createMainWindow = (url) => {
 
 const createActionView = () => {
     const win = new BrowserWindow({
-        width: 500,
+        width: 300,
         height: 400,
         webPreferences: {
             nodeIntegration: true,
@@ -53,8 +78,10 @@ const createActionView = () => {
             contextIsolation: true
         }
     })
+    win.setAlwaysOnTop(true)
+    win.setPosition(1620, 0)
     // win.webContents.openDevTools()
-    win.loadURL('http://localhost:8001/')
+    win.loadURL('http://localhost:8000/')
 
     return win
 }
@@ -63,11 +90,16 @@ const createActionView = () => {
 app.whenReady().then(() => {
 
     const mainWindow = createMainWindow()
-    ipcMain.handle('getData', (event, args) => {
+    ipcMain.handle('LoadData', (event, args) => {
         console.log('getData==>', args)
-        newMianWindow.webContents.send('post', args)
+        if (newMianWindow) {
+            newMianWindow.webContents.send('post', args)
+        }
     })
-    const actionWindow = createActionView()
+    mainWindow.on('show', () => {
+        const actionWindow = createActionView()
+    })
+
 })
 
 app.on('window-all-closed', () => {
