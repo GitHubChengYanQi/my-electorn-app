@@ -95,7 +95,8 @@ const createActionView = () => {
     win.setAlwaysOnTop(true)
     // win.setPosition(1620, 0)
     // win.webContents.openDevTools()
-    win.loadFile(path.resolve(path.join(__dirname, './/action/index.html')))
+    // win.loadFile(path.resolve(path.join(__dirname, './/action/index.html')))
+    win.loadURL('http://localhost:8000')
 
     return win
 }
