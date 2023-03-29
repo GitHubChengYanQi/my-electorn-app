@@ -25,7 +25,11 @@ const createMainWindow = (url) => {
 
 
     const filter = {
-        urls: ['https://zb.lnwsjktj.com:8080/webPage//ei/client/adddata.do', 'https://zb.lnwsjktj.com:8080/webPage/ei/client/adddata.do']
+        urls: [
+            'https://zb.lnwsjktj.com:8080/webPage//ei/client/adddata.do',
+            'https://zb.lnwsjktj.com:8080/webPage/ei/client/adddata.do',
+            'https://zb.lnwsjktj.com:8080/webPage/ei/appendbbh.do'
+        ]
     }
 
     session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
@@ -40,18 +44,22 @@ const createMainWindow = (url) => {
                         const dataItem = item.split('=')
                         data[dataItem[0]] = dataItem[1]
                     })
-                    if (data.cmd === 'query') {
-                        // console.log(data)
-                        win.webContents.send('requestData', data)
+                    if (details.url === 'https://zb.lnwsjktj.com:8080/webPage/ei/appendbbh.do') {
+                        if (data.cmd === 'append') {
+                            win.webContents.send('append', data)
+                        }
+                    } else {
+                        if (data.cmd === 'query') {
+                            // console.log(data)
+                            win.webContents.send('requestData', data)
+                        }
                     }
-
                 }
             }
         })
 
         callback({requestHeaders: details.requestHeaders})
     })
-
 
     win.webContents.setWindowOpenHandler((details) => {
         if (newMianWindow) {
@@ -83,10 +91,11 @@ const createActionView = () => {
             contextIsolation: true
         }
     })
+    win.menuBarVisible = false
     win.setAlwaysOnTop(true)
-    win.setPosition(1620, 0)
+    // win.setPosition(1620, 0)
     // win.webContents.openDevTools()
-    win.loadURL('http://localhost:8000/')
+    win.loadFile(path.resolve(path.join(__dirname, './/action/index.html')))
 
     return win
 }
