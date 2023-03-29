@@ -41,7 +41,7 @@ const createMainWindow = (url) => {
                         data[dataItem[0]] = dataItem[1]
                     })
                     if (data.cmd === 'query') {
-                        console.log(data)
+                        // console.log(data)
                         win.webContents.send('requestData', data)
                     }
 
@@ -54,10 +54,15 @@ const createMainWindow = (url) => {
 
 
     win.webContents.setWindowOpenHandler((details) => {
-        if (newMianWindow){
+        if (newMianWindow) {
             newMianWindow.close()
         }
         newMianWindow = createMainWindow(details.url)
+        newMianWindow.on('close', () => {
+            if (newMianWindow) {
+                newMianWindow = null
+            }
+        })
         // ipcMain.removeHandler('getData')
         return {action: 'deny'}
     })
@@ -69,8 +74,8 @@ const createMainWindow = (url) => {
 
 const createActionView = () => {
     const win = new BrowserWindow({
-        width: 300,
-        height: 400,
+        width: 800,
+        height: 800,
         webPreferences: {
             nodeIntegration: true,
             webviewTag: true,
