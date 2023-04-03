@@ -1,5 +1,5 @@
 {
-  "name": "loading",
+  "name": "zb.lnwsjktj",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -25,7 +25,6 @@
     "files":[
       "!src/**",
       "!output/**",
-      "!public/**",
       "!.vscode/**",
       "!.ice/**",
       "!.**",
@@ -35,10 +34,15 @@
       "output": "output"
     },
     "win": {
-      "icon": "./favicon.ico",
+      "icon": "./build/icon/256x256.ico",
+      "executableName": "直报系统",
       "target": [
         {
-          "target": "dir"
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ]
     }

@@ -23,6 +23,13 @@ let template = [
                 focusedWindow.reload()
             }
         }
+    },
+    {
+        label: '打开数据列表(Ctrl+O)',
+        accelerator: 'CmdOrCtrl+O',
+        click: function (item, focusedWindow) {
+            openAction()
+        }
     }
 ]
 
@@ -102,19 +109,7 @@ const createMainWindow = (url) => {
         }
         newMianWindow = createMainWindow(details.url)
         newMianWindow.on('show', () => {
-            if (!actionWindow) {
-                actionWindow = createActionView()
-                ipcMain.handle('append', (event, args) => {
-                    console.log('append==>', args)
-                    actionWindow.webContents.send('queryList', args)
-                })
-                actionWindow.on('close', () => {
-                    if (actionWindow) {
-                        ipcMain.removeHandler('append')
-                        actionWindow = null
-                    }
-                })
-            }
+            openAction()
         })
         newMianWindow.on('close', () => {
             if (actionWindow) {
@@ -135,6 +130,22 @@ const createMainWindow = (url) => {
 
 }
 
+const openAction = () => {
+    if (!actionWindow) {
+        actionWindow = createActionView()
+        ipcMain.handle('append', (event, args) => {
+            console.log('append==>', args)
+            actionWindow.webContents.send('queryList', args)
+        })
+        actionWindow.on('close', () => {
+            if (actionWindow) {
+                ipcMain.removeHandler('append')
+                actionWindow = null
+            }
+        })
+    }
+}
+
 const createActionView = () => {
 
     const win = new BrowserWindow({
@@ -153,7 +164,7 @@ const createActionView = () => {
 
     win.setAlwaysOnTop(true)
     win.loadFile(path.resolve(path.join(__dirname, './action/index.html')))
-    // win.loadURL('http://localhost:8000')
+    // win.loadURL('http://10.10.10.17:8081')
 
     return win
 }
