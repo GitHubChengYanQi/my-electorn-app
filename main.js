@@ -47,7 +47,7 @@ const createMainWindow = (url) => {
             contextIsolation: false
         }
     })
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools()
     win.loadURL(url || 'https://zb.lnwsjktj.com:8080/webPage/esmain/login.do')
 
     win.webContents.on('dom-ready', () => {
@@ -154,8 +154,8 @@ const createActionView = () => {
 
     const win = new BrowserWindow({
         icon: path.resolve(path.join(__dirname, '../static/weisheng.png')),
-        width: 500,
-        maxWidth: 500,
+        width: 600,
+        maxWidth: 600,
         height: 800,
         maximizable: false,
         webPreferences: {
@@ -167,9 +167,9 @@ const createActionView = () => {
     })
 
     win.setAlwaysOnTop(true)
-    // win.loadFile(path.resolve(path.join(__dirname, './action/index.html')))
-    win.loadURL('http://10.10.10.17:8081')
-    win.loadURL('http://10.10.10.17:8083')
+    win.loadURL('http://localhost:8000')
+    // win.loadURL('http://10.10.10.17:8081')
+    // win.loadURL('http://10.10.10.17:8083')
 
     return win
 }
