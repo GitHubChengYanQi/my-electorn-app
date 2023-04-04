@@ -1,7 +1,7 @@
 const {app, BrowserWindow, ipcMain, session, Menu} = require('electron')
 const path = require('path')
 
-let filePath = path.resolve(path.join(__dirname, './lib/preload.js'))
+let filePath = path.resolve(path.join(__dirname, '../lib/preload.js'))
 
 let newMianWindow;
 
@@ -23,13 +23,6 @@ let template = [
                 focusedWindow.reload()
             }
         }
-    },
-    {
-        label: '打开数据列表(Ctrl+O)',
-        accelerator: 'CmdOrCtrl+O',
-        click: function (item, focusedWindow) {
-            openAction()
-        }
     }
 ]
 
@@ -42,7 +35,7 @@ const createMainWindow = (url) => {
     loadingWindow = createLoadingWindow()
 
     const win = new BrowserWindow({
-        icon: path.resolve(path.join(__dirname, './public/imgs/weisheng.png')),
+        icon: path.resolve(path.join(__dirname, '../static/weisheng.png')),
         width: 1920,
         height: 1080,
         show: false,
@@ -54,7 +47,7 @@ const createMainWindow = (url) => {
             contextIsolation: false
         }
     })
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
     win.loadURL(url || 'https://zb.lnwsjktj.com:8080/webPage/esmain/login.do')
 
     win.webContents.on('dom-ready', () => {
@@ -108,6 +101,17 @@ const createMainWindow = (url) => {
             newMianWindow.close()
         }
         newMianWindow = createMainWindow(details.url)
+        const menu = Menu.buildFromTemplate([
+            ...template,
+            {
+                label: '打开数据列表(Ctrl+O)',
+                accelerator: 'CmdOrCtrl+O',
+                click: function (item, focusedWindow) {
+                    openAction()
+                }
+            }
+        ])
+        newMianWindow.setMenu(menu)
         newMianWindow.on('show', () => {
             openAction()
         })
@@ -149,7 +153,7 @@ const openAction = () => {
 const createActionView = () => {
 
     const win = new BrowserWindow({
-        icon: path.resolve(path.join(__dirname, './public/imgs/weisheng.png')),
+        icon: path.resolve(path.join(__dirname, '../static/weisheng.png')),
         width: 500,
         maxWidth: 500,
         height: 800,
@@ -163,8 +167,9 @@ const createActionView = () => {
     })
 
     win.setAlwaysOnTop(true)
-    win.loadFile(path.resolve(path.join(__dirname, './action/index.html')))
-    // win.loadURL('http://10.10.10.17:8081')
+    // win.loadFile(path.resolve(path.join(__dirname, './action/index.html')))
+    win.loadURL('http://10.10.10.17:8081')
+    win.loadURL('http://10.10.10.17:8083')
 
     return win
 }
@@ -186,7 +191,7 @@ const createLoadingWindow = () => {
     })
     win.menuBarVisible = false
     win.setAlwaysOnTop(true)
-    win.loadFile(path.resolve(path.join(__dirname, './page/index.html')))
+    win.loadFile(path.resolve(path.join(__dirname, '../page/index.html')))
     return win
 }
 
