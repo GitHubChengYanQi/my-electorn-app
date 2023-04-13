@@ -95,12 +95,12 @@ const createMainWindow = (url) => {
 
         callback({requestHeaders: details.requestHeaders})
     })
-
-    win.webContents.setWindowOpenHandler((details) => {
+    win.webContents.on('new-window',(event,url)=>{
+        event.preventDefault()
         if (newMianWindow) {
             newMianWindow.close()
         }
-        newMianWindow = createMainWindow(details.url)
+        newMianWindow = createMainWindow(url)
 
         ipcMain.handle('batchAddDone', (event, args) => {
             console.log('batchAddDone==>')
@@ -125,6 +125,7 @@ const createMainWindow = (url) => {
                 actionWindow.close()
                 ipcMain.removeHandler('append')
                 ipcMain.removeHandler('createHealthDone')
+                ipcMain.removeHandler('postDataDone')
                 actionWindow = null
             }
             if (newMianWindow) {
@@ -132,9 +133,12 @@ const createMainWindow = (url) => {
                 newMianWindow = null
             }
         })
-        // ipcMain.removeHandler('getData')
-        return {action: 'deny'}
     })
+    // win.webContents.setWindowOpenHandler((details) => {
+
+    //     // ipcMain.removeHandler('getData')
+    //     return {action: 'deny'}
+    // })
 
 
     return win
@@ -152,10 +156,15 @@ const openAction = () => {
             console.log('createHealthDone==>')
             actionWindow.webContents.send('createHealthDone', args)
         })
+        ipcMain.handle('postDataDone', (event, args) => {
+            console.log('postDataDone==>')
+            actionWindow.webContents.send('postDataDone', args)
+        })
         actionWindow.on('close', () => {
             if (actionWindow) {
                 ipcMain.removeHandler('append')
                 ipcMain.removeHandler('createHealthDone')
+                ipcMain.removeHandler('postDataDone')
                 actionWindow = null
             }
         })
@@ -166,9 +175,9 @@ const createActionView = () => {
 
     const win = new BrowserWindow({
         icon: path.resolve(path.join(__dirname, '../static/weisheng.png')),
-        width: 600,
-        maxWidth: 600,
-        height: 800,
+        width: 700,
+        maxWidth: 700,
+        height: 1000,
         maximizable: false,
         webPreferences: {
             nodeIntegration: true,
