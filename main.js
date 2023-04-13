@@ -101,6 +101,11 @@ const createMainWindow = (url) => {
             newMianWindow.close()
         }
         newMianWindow = createMainWindow(details.url)
+
+        ipcMain.handle('batchAddDone', (event, args) => {
+            console.log('batchAddDone==>')
+            newMianWindow.reload()
+        })
         const menu = Menu.buildFromTemplate([
             ...template,
             {
@@ -119,9 +124,11 @@ const createMainWindow = (url) => {
             if (actionWindow) {
                 actionWindow.close()
                 ipcMain.removeHandler('append')
+                ipcMain.removeHandler('createHealthDone')
                 actionWindow = null
             }
             if (newMianWindow) {
+                ipcMain.removeHandler('batchAddDone')
                 newMianWindow = null
             }
         })
@@ -141,9 +148,14 @@ const openAction = () => {
             console.log('append==>', args)
             actionWindow.webContents.send('queryList', args)
         })
+        ipcMain.handle('createHealthDone', (event, args) => {
+            console.log('createHealthDone==>')
+            actionWindow.webContents.send('createHealthDone', args)
+        })
         actionWindow.on('close', () => {
             if (actionWindow) {
                 ipcMain.removeHandler('append')
+                ipcMain.removeHandler('createHealthDone')
                 actionWindow = null
             }
         })
@@ -165,11 +177,16 @@ const createActionView = () => {
             contextIsolation: true
         }
     })
-
+    // win.webContents.openDevTools()
     win.setAlwaysOnTop(true)
-    win.loadURL('http://localhost:8000')
-    // win.loadURL('http://10.10.10.17:8081')
-    // win.loadURL('http://10.10.10.17:8083')
+    // local
+    // win.loadURL('http://localhost:8000')
+
+    // 内
+    win.loadURL('http://10.10.10.17:8081')
+
+    // 外
+    // win.loadURL('http://10.147.20.160:8083')
 
     return win
 }
@@ -203,9 +220,14 @@ app.whenReady().then(() => {
     const mainWindow = createMainWindow()
 
     ipcMain.handle('LoadData', (event, args) => {
-        console.log('getData==>', args)
         if (newMianWindow) {
             newMianWindow.webContents.send('post', args)
+        }
+    })
+
+    ipcMain.handle('createHealth', (event, args) => {
+        if (newMianWindow) {
+            newMianWindow.webContents.send('createHealth', args)
         }
     })
 
