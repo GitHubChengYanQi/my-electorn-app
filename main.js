@@ -50,6 +50,10 @@ const createMainWindow = (url) => {
     // win.webContents.openDevTools()
     win.loadURL(url || 'https://zb.lnwsjktj.com:8080/webPage/esmain/login.do')
 
+    win.webContents.on('did-fail-load',()=>{
+        win.reload()
+    })
+
     win.webContents.on('dom-ready', () => {
         win.show()
         if (loadingWindow) {
@@ -197,6 +201,10 @@ const createActionView = () => {
     // 外
     // win.loadURL('http://10.147.20.160:8083')
 
+    win.webContents.on('did-fail-load',()=>{
+        win.reload()
+    })
+
     return win
 }
 
@@ -218,6 +226,11 @@ const createLoadingWindow = () => {
     win.menuBarVisible = false
     win.setAlwaysOnTop(true)
     win.loadFile(path.resolve(path.join(__dirname, '../page/index.html')))
+
+    win.webContents.on('did-fail-load',()=>{
+        win.reload()
+    })
+
     return win
 }
 
